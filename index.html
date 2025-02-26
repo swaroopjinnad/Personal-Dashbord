@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236366f1'><path d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="logo">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Dashboard</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <div class="nav-group">
+                    <button class="nav-item active" data-tab="links">
+                        <i class="fas fa-link"></i>
+                        <span>Quick Links</span>
+                    </button>
+                    <button class="nav-item" data-tab="expenses">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Expenses</span>
+                    </button>
+                    <button class="nav-item" data-tab="weather">
+                        <i class="fas fa-cloud-sun"></i>
+                        <span>Weather</span>
+                    </button>
+                </div>
+
+                <div class="nav-footer">
+                    <div class="backup-controls">
+                        <button onclick="exportData()" class="backup-btn">
+                            <i class="fas fa-download"></i>
+                            <span>Export Data</span>
+                        </button>
+                        <label for="restoreFile" class="backup-btn">
+                            <i class="fas fa-upload"></i>
+                            <span>Restore Data</span>
+                        </label>
+                        <input type="file" id="restoreFile" accept=".json" style="display: none" onchange="importData(event)">
+                    </div>
+                    <button class="theme-toggle">
+                        <i class="fas fa-moon"></i>
+                        <i class="fas fa-sun"></i>
+                        <span>Dark Mode</span>
+                    </button>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-wrapper">
+                <!-- Tab Content -->
+                <div class="tab-container">
+                    <div class="tab-content active" id="links-tab">
+                        <!-- Links Section -->
+                        <div class="section-header">
+                            <h2>Quick Links</h2>
+                            <button onclick="showAddLinkForm()" class="add-link-btn">
+                                <i class="fas fa-plus"></i>
+                                Add New Link
+                            </button>
+                        </div>
+                        
+                        <div class="links-container" id="linksContainer"></div>
+                        
+                        <div class="add-link-form" id="addLinkForm">
+                            <div class="form-group">
+                                <input type="text" id="linkTitle" placeholder="Link Title">
+                                <input type="url" id="linkUrl" placeholder="https://...">
+                                <input type="url" id="linkImage" placeholder="Image URL (optional)">
+                            </div>
+                            <button onclick="addLink()" class="add-button">
+                                <span>Add Link</span>
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+
+                        <!-- Stats Section Moved Below -->
+                        <div class="stats-section">
+                            <h3>Dashboard Overview</h3>
+                            <div class="stats-grid">
+                                <div class="stat-card primary">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-link"></i>
+                                    </div>
+                                    <div class="stat-details">
+                                        <h3>Saved Links</h3>
+                                        <p class="stat-value" id="totalLinks">0</p>
+                                        <p class="stat-label">Total Links</p>
+                                    </div>
+                                </div>
+
+                                <div class="stat-card success">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-wallet"></i>
+                                    </div>
+                                    <div class="stat-details">
+                                        <h3>Monthly Expenses</h3>
+                                        <p class="stat-value" id="monthExpenses">₹0</p>
+                                        <p class="stat-label">This Month</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-content" id="expenses-tab">
+                        <div class="expense-dashboard">
+                            <!-- Header with Add Button -->
+                            <div class="section-header">
+                                <h2>Expenses & Income</h2>
+                                <div class="header-actions">
+                                    <button onclick="showAddIncomeForm()" class="add-income-btn">
+                                        <i class="fas fa-plus"></i>
+                                        Add Income
+                                    </button>
+                                    <button onclick="showAddExpenseForm()" class="add-expense-btn">
+                                        <i class="fas fa-plus"></i>
+                                        Add Expense
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Income Form -->
+                            <div class="income-form" id="incomeForm">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <input type="text" id="incomeTitle" placeholder="Income Source">
+                                        <input type="number" id="incomeAmount" placeholder="Amount">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="date" id="incomeDate">
+                                        <select id="incomeCategory">
+                                            <option value="">Category</option>
+                                            <option value="Salary">💼 Salary</option>
+                                            <option value="Freelance">💻 Freelance</option>
+                                            <option value="Investment">📈 Investment</option>
+                                            <option value="Rental">🏠 Rental</option>
+                                            <option value="Other">💰 Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button onclick="addIncome()" class="add-button">Add Income</button>
+                            </div>
+
+                            <!-- Expense Form -->
+                            <div class="expense-form" id="expenseForm">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <input type="text" id="expenseTitle" placeholder="Title">
+                                        <input type="number" id="expenseAmount" placeholder="Amount">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="date" id="expenseDate">
+                                        <select id="expenseCategory">
+                                            <option value="">Category</option>
+                                            <option value="Rent">🏠 Rent</option>
+                                            <option value="Food">🍽️ Food</option>
+                                            <option value="Travel">✈️ Travel</option>
+                                            <option value="Shopping">🛒 Shopping</option>
+                                            <option value="Bills">📃 Bills</option>
+                                            <option value="Entertainment">🎬 Entertainment</option>
+                                            <option value="Health">💊 Health</option>
+                                            <option value="Education">📚 Education</option>
+                                        </select>
+                                        <select id="paymentMode">
+                                            <option value="">Payment</option>
+                                            <option value="UPI">📱 UPI</option>
+                                            <option value="Cash">💵 Cash</option>
+                                            <option value="Card">💳 Card</option>
+                                            <option value="Net">🏦 Net Banking</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button onclick="addExpense()" class="add-button">Add Expense</button>
+                            </div>
+
+                            <!-- Chart and Stats -->
+                            <div class="expense-summary">
+                                <div class="charts-container">
+                                    <div class="chart-wrapper">
+                                        <h3>Expenses</h3>
+                                        <canvas id="expenseChart"></canvas>
+                                    </div>
+                                    <div class="chart-wrapper">
+                                        <h3>Income</h3>
+                                        <canvas id="incomeChart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="expense-stats">
+                                    <div class="stat-card">
+                                        <div class="stat-icon">
+                                            <i class="fas fa-piggy-bank"></i>
+                                        </div>
+                                        <div class="stat-details">
+                                            <h3>Monthly Summary</h3>
+                                            <p>Income: <span id="monthlyIncome">₹0</span></p>
+                                            <p>Expenses: <span id="monthlyExpenses">₹0</span></p>
+                                            <p>Savings: <span id="monthlySavings">₹0</span></p>
+                                            <p class="stat-comparison">Last Month: <span id="lastMonthSavings">₹0</span></p>
+                                        </div>
+                                    </div>
+                                    <div class="stat-card">
+                                        <div class="stat-icon">
+                                            <i class="fas fa-chart-line"></i>
+                                        </div>
+                                        <div class="stat-details">
+                                            <h3>Yearly Summary</h3>
+                                            <p>Income: <span id="yearlyIncome">₹0</span></p>
+                                            <p>Expenses: <span id="yearlyExpenses">₹0</span></p>
+                                            <p>Savings: <span id="yearlySavings">₹0</span></p>
+                                            <p class="stat-comparison">Last Year: <span id="lastYearSavings">₹0</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Transactions List -->
+                            <div class="transactions-section">
+                                <button onclick="toggleTransactions()" class="toggle-btn">
+                                    <i class="fas fa-list"></i>
+                                    Show Transactions
+                                </button>
+                                <div id="transactionsList" class="transactions-list hidden">
+                                    <div id="expenseList"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-content" id="weather-tab">
+                        <div class="weather-widget">
+                            <div class="weather-search">
+                                <input type="text" id="cityInput" placeholder="Search city...">
+                                <button onclick="getWeather()" class="search-button">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                            <div class="quick-cities">
+                                <button onclick="getWeather('Bagalkot')">Bagalkot</button>
+                                <button onclick="getWeather('Bangalore')">Bangalore</button>
+                                <button onclick="getWeather('Mumbai')">Mumbai</button>
+                                <button onclick="getWeather('Delhi')">Delhi</button>
+                            </div>
+                            <div class="weather-info">
+                                <div class="weather-current">
+                                    <div class="weather-icon-temp">
+                                        <img id="weatherIcon" src="" alt="Weather">
+                                        <h2 id="temperature">--°C</h2>
+                                    </div>
+                                    <div class="weather-info-detail">
+                                        <h3 id="cityName">City</h3>
+                                        <p id="weatherDesc">Weather Description</p>
+                                    </div>
+                                </div>
+                                <div class="weather-details">
+                                    <div class="detail">
+                                        <i class="fas fa-droplet"></i>
+                                        <span id="humidity">--%</span>
+                                    </div>
+                                    <div class="detail">
+                                        <i class="fas fa-wind"></i>
+                                        <span id="windSpeed">-- km/h</span>
+                                    </div>
+                                    <div class="detail">
+                                        <i class="fas fa-temperature-low"></i>
+                                        <span id="feelsLike">--°C</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
